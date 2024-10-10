@@ -3,12 +3,11 @@ pipeline {
 
     environment {
         REPO_URL = 'https://github.com/Royce237/mongo-deployment.git'
-        HELM_CHART_PATH = 'path/to/helm/chart'
         NAMESPACE_STAGE = 'stage'
         NAMESPACE_DEV = 'dev'
         NAMESPACE_PROD = 'prod'
-        K8S_CLUSTER = 'your-cluster-context' // Kube context for accessing the cluster
-        AGENT_NAME = 'server3'
+        K8S_CLUSTER = 'do-nyc1-server-cluster' // Kube context for accessing the cluster
+        AGENT_NAME = 'SERVER03'
     }
 
     stages {
@@ -26,7 +25,8 @@ pipeline {
                     // Helm install/upgrade in stage namespace
                     sh """
                         kubectl config use-context ${K8S_CLUSTER}
-                        helm upgrade --install backend ${HELM_CHART_PATH} --namespace ${NAMESPACE_STAGE} --create-namespace
+                        helm upgrade --install backend backend --namespace ${NAMESPACE_STAGE} --create-namespace
+                        helm upgrade --install frontend frontend --namespace ${NAMESPACE_STAGE} --create-namespace
                     """
                 }
             }
@@ -39,7 +39,8 @@ pipeline {
                     // Helm install/upgrade in dev namespace
                     sh """
                         kubectl config use-context ${K8S_CLUSTER}
-                        helm upgrade --install backend ${HELM_CHART_PATH} --namespace ${NAMESPACE_DEV} --create-namespace
+                        helm upgrade --install backend backend --namespace ${NAMESPACE_DEV} --create-namespace
+                        helm upgrade --install frontend frontend --namespace ${NAMESPACE_DEV} --create-namespace
                     """
                 }
             }
@@ -65,7 +66,8 @@ pipeline {
                     // Helm install/upgrade in prod namespace
                     sh """
                         kubectl config use-context ${K8S_CLUSTER}
-                        helm upgrade --install backend ${HELM_CHART_PATH} --namespace ${NAMESPACE_PROD} --create-namespace
+                        helm upgrade --install backend backend --namespace ${NAMESPACE_PROD} --create-namespace
+                        helm upgrade --install frontend frontend --namespace ${NAMESPACE_PROD} --create-namespace
                     """
                 }
             }
