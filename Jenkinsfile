@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'SERVER03' }
 
     environment {
         REPO_URL = 'https://github.com/Royce237/mongo-deployment.git'
