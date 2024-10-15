@@ -22,7 +22,7 @@ pipeline {
                 script {
                     // Helm install/upgrade in stage namespace
                     sh """
-                        export KUBECONFIG=/path/to/your/kubeconfig
+                        export KUBECONFIG=~/.kube/config
                         helm upgrade --install backend backend --namespace ${NAMESPACE_STAGE} --create-namespace --kube-token ${K8S_TOKEN}
                         helm upgrade --install frontend frontend --namespace ${NAMESPACE_STAGE} --create-namespace --kube-token ${K8S_TOKEN}
                     """
