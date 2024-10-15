@@ -1,13 +1,12 @@
 pipeline {
     agent any
-    
+
     environment {
         REPO_URL = 'https://github.com/Royce237/mongo-deployment.git'
         NAMESPACE_STAGE = 'stage'
         NAMESPACE_DEV = 'dev'
         NAMESPACE_PROD = 'prod'
         K8S_CLUSTER = 'default' // Kube context for accessing the cluster
-
     }
 
     stages {
@@ -19,7 +18,6 @@ pipeline {
         }
 
         stage('Deploy to Stage') {
-            // Ensure deployment happens on the right agent
             steps {
                 script {
                     // Helm install/upgrade in stage namespace
@@ -53,7 +51,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Prod'{
+        stage('Deploy to Prod') { // Fixed the missing closing parenthesis
             when {
                 branch 'main'
             }
