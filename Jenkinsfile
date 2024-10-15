@@ -1,13 +1,13 @@
 pipeline {
-    agent { label 'SERVER03' }
-
+    agent any
+    
     environment {
         REPO_URL = 'https://github.com/Royce237/mongo-deployment.git'
         NAMESPACE_STAGE = 'stage'
         NAMESPACE_DEV = 'dev'
         NAMESPACE_PROD = 'prod'
-        K8S_CLUSTER = 'do-nyc1-server-cluster' // Kube context for accessing the cluster
-        AGENT_NAME = 'SERVER03'
+        K8S_CLUSTER = 'default' // Kube context for accessing the cluster
+
     }
 
     stages {
@@ -19,7 +19,7 @@ pipeline {
         }
 
         stage('Deploy to Stage') {
-            agent { label "${AGENT_NAME}" } // Ensure deployment happens on the right agent
+            // Ensure deployment happens on the right agent
             steps {
                 script {
                     // Helm install/upgrade in stage namespace
@@ -32,7 +32,6 @@ pipeline {
         }
 
         stage('Deploy to Dev') {
-            agent { label "${AGENT_NAME}" }
             steps {
                 script {
                     // Helm install/upgrade in dev namespace
@@ -54,8 +53,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Prod') {
-            agent { label "${AGENT_NAME}" }
+        stage('Deploy to Prod'{
             when {
                 branch 'main'
             }
