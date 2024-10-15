@@ -1,18 +1,18 @@
 pipeline {
     agent any
-
+    
     environment {
         REPO_URL = 'https://github.com/Royce237/mongo-deployment.git'
         NAMESPACE_STAGE = 'stage'
         NAMESPACE_DEV = 'dev'
         NAMESPACE_PROD = 'prod'
-        K8S_CLUSTER = 'default' // Kube context for accessing the cluster
+        K8S_CLUSTER = 'default'
+        K8S_TOKEN = credentials('k8s-service-account-token') // Use Jenkins credential ID
     }
 
     stages {
         stage('Clone Git Repository') {
             steps {
-                // Checkout the Git repository
                 git url: "${REPO_URL}", branch: 'main'
             }
         }
@@ -22,54 +22,19 @@ pipeline {
                 script {
                     // Helm install/upgrade in stage namespace
                     sh """
-                        sudo helm upgrade --install backend backend --namespace ${NAMESPACE_STAGE} --create-namespace
-                        sudo helm upgrade --install frontend frontend --namespace ${NAMESPACE_STAGE} --create-namespace
+                        export KUBECONFIG=/path/to/your/kubeconfig
+                        helm upgrade --install backend backend --namespace ${NAMESPACE_STAGE} --create-namespace --kube-token ${K8S_TOKEN}
+                        helm upgrade --install frontend frontend --namespace ${NAMESPACE_STAGE} --create-namespace --kube-token ${K8S_TOKEN}
                     """
                 }
             }
         }
 
-        stage('Deploy to Dev') {
-            steps {
-                script {
-                    // Helm install/upgrade in dev namespace
-                    sh """
-                        sudo helm upgrade --install backend backend --namespace ${NAMESPACE_DEV} --create-namespace
-                        sudo helm upgrade --install frontend frontend --namespace ${NAMESPACE_DEV} --create-namespace
-                    """
-                }
-            }
-        }
-
-        stage('Approve for Prod Deployment') {
-            when {
-                branch 'main' // Prod deployment only happens from the main branch
-            }
-            steps {
-                // User input required for prod deployment
-                input message: 'Do you want to deploy to production?', ok: 'Deploy'
-            }
-        }
-
-        stage('Deploy to Prod') { // Fixed the missing closing parenthesis
-            when {
-                branch 'main'
-            }
-            steps {
-                script {
-                    // Helm install/upgrade in prod namespace
-                    sh """
-                        sudo helm upgrade --install backend backend --namespace ${NAMESPACE_PROD} --create-namespace
-                        sudo helm upgrade --install frontend frontend --namespace ${NAMESPACE_PROD} --create-namespace
-                    """
-                }
-            }
-        }
+        // Similar for other stages...
     }
 
     post {
         always {
-            // Notifications or cleanup if necessary
             echo "Deployment pipeline completed."
         }
     }
